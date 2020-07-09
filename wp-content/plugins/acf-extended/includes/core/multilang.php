@@ -50,6 +50,24 @@ class acfe_multilang{
 	    
     }
     
+    function wpml_get_languages($pluck = 'locale'){
+        
+        // https://wpml.org/wpml-hook/wpml_active_languages/
+        if($pluck === 'locale')
+            $pluck = 'default_locale';
+        
+        $languages = apply_filters('wpml_active_languages', null, array('skip_missing' => 0));
+        
+        if($pluck){
+            
+            $languages = wp_list_pluck($languages, $pluck, true);
+            
+        }
+        
+        return $languages;
+        
+    }
+    
     /**
      * PolyLang
      * https://polylang.pro/doc/filter-reference/
@@ -79,34 +97,29 @@ class acfe_multilang{
     
     function polylang_get_languages($pluck = 'locale'){
         
+        // Copy from wp-content/plugins/polylang-pro/settings/settings.php:363
         require_once ABSPATH . 'wp-admin/includes/translation-install.php';
     
         $languages    = include PLL_SETTINGS_INC . '/languages.php';
         $translations = wp_get_available_translations();
-    
-        // Keep only languages with existing WP language pack
-        // Unless the transient has expired and we don't have an internet connection to refresh it
-        if ( ! empty( $translations ) ) {
-            $translations['en_US'] = ''; // Languages packs don't include en_US
-            $languages = array_intersect_key( $languages, $translations );
+        
+        if (!empty($translations)){
+            
+            $translations['en_US'] = '';
+            $languages = array_intersect_key($languages, $translations);
+            
         }
-    
-        /**
-         * Filter the list of predefined languages
-         *
-         * @since 1.7.10
-         * @since 2.3 The languages arrays use associative keys instead of numerical keys
-         * @see settings/languages.php
-         *
-         * @param array $languages
-         */
-        $languages = apply_filters( 'pll_predefined_languages', $languages );
-    
-        // Keep only languages with all necessary informations
-        foreach ( $languages as $k => $lang ) {
-            if ( ! isset( $lang['code'], $lang['locale'], $lang['name'], $lang['dir'], $lang['flag'] ) ) {
-                unset( $languages[ $k ] );
+        
+        $languages = apply_filters('pll_predefined_languages', $languages);
+        
+        foreach($languages as $k => $lang){
+            
+            if (!isset( $lang['code'], $lang['locale'], $lang['name'], $lang['dir'], $lang['flag'])){
+                
+                unset($languages[$k]);
+                
             }
+            
         }
         
         if($pluck){
@@ -116,6 +129,24 @@ class acfe_multilang{
         }
     
         return $languages;
+        
+    }
+    
+    function get_languages($pluck = 'code', $plugin = false){
+    
+        // Polylang
+        if($this->is_polylang || $plugin === 'polylang'){
+    
+            return $this->polylang_get_languages($pluck);
+            
+        // WPML
+        }elseif($this->is_wpml || $plugin === 'wpml'){
+    
+            return $this->wpml_get_languages($pluck);
+            
+        }
+        
+        return array();
         
     }
     
@@ -153,66 +184,42 @@ class acfe_multilang{
     }
     
     function is_post_id_localized($post_id){
+    
+        // Check if ends with '-en_US' || '_en_US'
+        preg_match('/[_\-][A-Za-z]{2}_[A-Za-z]{2}$/', $post_id, $found);
+    
+        if(!empty($found)){
         
-        // Polylang
-        if($this->is_polylang){
-    
-            // Check var'_en_US'
-            preg_match('/_[a-z]{2}_[A-Z]{2}$/', $post_id, $found_locale);
-            
-            if(!empty($found_locale)){
-                
-                // Remove first '_'
-                $found_locale = substr($found_locale[0], 1);
-                
-                // Get Polylang Languages List
-                $languages = $this->polylang_get_languages('locale');
-                
-                // Language Locale found in Post ID
-                if(in_array($found_locale, $languages))
-                    return true;
-                
-                
-            }
-            
-            // Check var'_en'
-            preg_match('/_[a-z]{2}$/', $post_id, $found_code);
-            
-            if(!empty($found_code)){
-    
-                // Remove first '_'
-                $found_code = substr($found_code[0], 1);
-    
-                // Get Polylang Languages List
-                $languages = $this->polylang_get_languages('code');
-    
-                // Language Locale found in Post ID
-                if(in_array($found_code, $languages))
-                    return true;
-            
-            }
-            
+            // Remove first '_'
+            $found = substr($found[0], 1);
+            $found = strtolower($found);
+        
+            // Get Languages List
+            $languages = $this->get_languages('locale');
+            $languages = array_map('strtolower', $languages);
+        
+            // Language Locale found in Post ID
+            if(in_array($found, $languages))
+                return true;
+        
         }
-        
-        // WPML
-        elseif($this->is_wpml){
     
-            // Check var'_en'
-            preg_match('/_[a-z]{2}$/', $post_id, $found_code);
+        // Check if ends with '-en' || '_en'
+        preg_match('/[_\-][A-Za-z]{2}$/', $post_id, $found);
     
-            if(!empty($found_code)){
+        if(!empty($found)){
         
-                // Remove first '_'
-                $found_code = substr($found_code[0], 1);
+            // Remove first '_'
+            $found = substr($found[0], 1);
+            $found = strtolower($found);
         
-                // Get WPML Languages List
-                $languages = icl_get_languages_codes();
+            // Get Languages List
+            $languages = $this->get_languages('code');
+            $languages = array_map('strtolower', $languages);
         
-                // Language Locale found in Post ID
-                if(in_array($found_code, $languages))
-                    return true;
-        
-            }
+            // Language Code found in Post ID
+            if(in_array($found, $languages))
+                return true;
         
         }
         

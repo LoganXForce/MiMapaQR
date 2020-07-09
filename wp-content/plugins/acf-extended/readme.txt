@@ -5,7 +5,7 @@ Tags: acf, custom fields, meta, admin, fields, form, repeater, content
 Requires at least: 4.9
 Tested up to: 5.4
 Requires PHP: 5.6
-Stable tag: 0.8.6.5
+Stable tag: 0.8.6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -845,6 +845,17 @@ function my_acfe_modules(){
 10. ACF Settings
 
 == Changelog ==
+
+= 0.8.6.6 =
+* Module: Multilang - Fixed WPML front-end language detection for custom languages
+* Module: Settings - Added "Multilang" & "Single Meta" settings in the UI
+* Module: Settings - Fixed `l10n_textdomain` which wasn't correctly displayed
+* Module: Dev Mode - Fixed option "Edit" action link
+* Module: PHP AutoSync - Added l10n support
+* Module: Single Meta - Enhanced "Delete Orphan Meta" setting logic & performance
+* Field: Taxonomy Terms - Added "Term (All childs)" to display any childs level terms
+* Field: Taxonomy Terms - Renamed "Term (Childs)" to "Term (Direct childs)" to avoid confusion with the new filter
+* Field: Taxonomy Terms - Fixed "Term (Direct childs)" which could be duplicated in some cases
 
 = 0.8.6.5 =
 * General: Added WPML & Polylang compatibility for Options Pages with custom post ids. ie: `my-theme` post id will be translated to `my-theme_en` with WPML & `my-theme_en_US` with Polylang

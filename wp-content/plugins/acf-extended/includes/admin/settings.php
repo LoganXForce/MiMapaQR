@@ -144,7 +144,7 @@ function acfe_admin_settings_html(){
                     array(
                         'name'  => 'l10n_textdomain',
                         'label' => 'l10n Textdomain',
-                        'value' => '<code>' . (acf_get_setting('l10n') ? __('True'): __('False')) . '</code>',
+                        'value' => '<code>' . print_r(acf_get_setting('l10n_textdomain'), true) . '</code>',
                         'description' => 'Sets the text domain used when translating field and field group settings.<br />Defaults to ”. Strings will not be translated if this setting is empty'
                     ),
                     array(
@@ -169,7 +169,7 @@ function acfe_admin_settings_html(){
                         'name'  => 'google_api_client',
                         'label' => 'Google API Key',
                         'value' => '<code>' . acf_get_setting('google_api_client') . '</code>',
-                        'description' => 'Specify a Google Maps API Client ID to prevent usage limits.<br />Not needed if using google_api_key. Defaults to ”'
+                        'description' => 'Specify a Google Maps API Client ID to prevent usage limits.<br />Not needed if using <code>google_api_key</code>. Defaults to ”'
                     ),
                     array(
                         'name'  => 'enqueue_google_maps',
@@ -282,10 +282,22 @@ function acfe_admin_settings_html(){
                         'description' => 'Show/hide the Options Pages module. Defaults to true'
                     ),
                     array(
+                        'name'  => 'acfe/modules/multilang',
+                        'label' => 'Module: Multilang',
+                        'value' => '<code>' . (acf_get_setting('acfe/modules/multilang', true) ? __('True'): __('False')) . '</code>',
+                        'description' => 'Enable/disable Multilang compatibility module for WPML & Polylang. Defaults to true'
+                    ),
+                    array(
                         'name'  => 'acfe/modules/options',
                         'label' => 'Module: Options',
                         'value' => '<code>' . (acf_get_setting('acfe/modules/options', true) ? __('True'): __('False')) . '</code>',
                         'description' => 'Show/hide the Options module. Defaults to true'
+                    ),
+                    array(
+                        'name'  => 'acfe/modules/single_meta',
+                        'label' => 'Module: Single Meta',
+                        'value' => '<code>' . (acf_get_setting('acfe/modules/single_meta', true) ? __('True'): __('False')) . '</code>',
+                        'description' => 'Enable/disable Single Meta Save module. Defaults to false'
                     ),
                     array(
                         'name'  => 'acfe/modules/ui',
